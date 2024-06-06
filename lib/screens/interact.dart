@@ -16,24 +16,6 @@ class Interact extends StatefulWidget {
 }
 
 class _InteractState extends State<Interact> {
-  late ClientProvider clientProvider;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    clientProvider = Provider.of<ClientProvider>(context, listen: false);
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    clientProvider.disconnect();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +213,10 @@ class _InteractState extends State<Interact> {
                 ),
               ),
             ),
+            const Align(
+              alignment: Alignment.bottomCenter,
+              child: PingDisplay(),
+            ),
           ]),
         ),
       ),
@@ -246,23 +232,24 @@ class JoystickAttach extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ClientProvider>(
       builder: (context, clientProvider, _) => Joystick(
-          stick: Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-                color: Colors.blue, borderRadius: BorderRadius.circular(90)),
+        stick: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+              color: Colors.blue, borderRadius: BorderRadius.circular(90)),
+        ),
+        base: Container(
+          width: 140,
+          height: 140,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(500),
           ),
-          base: Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(500),
-            ),
-          ),
-          period: const Duration(milliseconds: 50),
-          listener: (details) =>
-              clientProvider.sendJoystick(position, details.x, -details.y)),
+        ),
+        period: const Duration(milliseconds: 50),
+        listener: (details) =>
+            clientProvider.sendJoystick(position, details.x, -details.y),
+      ),
     );
   }
 }
@@ -325,5 +312,16 @@ class KeyPadButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class PingDisplay extends StatelessWidget {
+  const PingDisplay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ClientProvider>(
+        builder: (context, clientProvider, _) =>
+            Text("${clientProvider.ping}ms"));
   }
 }

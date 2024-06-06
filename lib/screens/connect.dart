@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:collection/collection.dart';
-import 'package:xpalm_client/screens/manual_connect.dart';
+import 'package:provider/provider.dart';
+import '../client_provider.dart';
+import 'manual_connect.dart';
 import 'enter_pin.dart';
 
 class Connect extends StatefulWidget {
@@ -17,12 +19,22 @@ class Connect extends StatefulWidget {
 }
 
 class _ConnectState extends State<Connect> {
+  late ClientProvider clientProvider;
   ServersMulticast serverSearch = ServersMulticast();
 
   @override
   void initState() {
+    try {
+      clientProvider.disconnect();
+    } catch (_) {}
     serverSearch.bind();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    clientProvider = Provider.of<ClientProvider>(context, listen: false);
+    super.didChangeDependencies();
   }
 
   @override

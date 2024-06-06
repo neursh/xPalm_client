@@ -5,7 +5,13 @@ import 'package:flutter/foundation.dart';
 import "package:socket_io_client/socket_io_client.dart" as sio;
 import 'package:vibration/vibration.dart';
 
-enum KeyAction { press, release }
+enum KeyAction {
+  press(1),
+  release(0);
+
+  const KeyAction(this.value);
+  final num value;
+}
 
 enum KeyPad {
   XUSB_GAMEPAD_DPAD_UP(0x0001),
@@ -28,14 +34,28 @@ enum KeyPad {
   final num value;
 }
 
-enum JoystickPosition { left_joystick, right_joystick }
+enum JoystickPosition {
+  left_joystick(0),
+  right_joystick(1);
 
-enum Trigger { left_trigger, right_trigger }
+  const JoystickPosition(this.value);
+  final num value;
+}
+
+enum Trigger {
+  left_trigger(0),
+  right_trigger(1);
+
+  const Trigger(this.value);
+  final num value;
+}
 
 class ClientProvider extends ChangeNotifier {
   bool authorized = false;
   bool connection = false;
-  sio.Socket? socket;
+  late sio.Socket socket;
+  int ping = 0;
+  int start = DateTime.now().millisecondsSinceEpoch;
 
   connect(String ip, int port, String pin) async {
     connection = true;
@@ -52,17 +72,17 @@ class ClientProvider extends ChangeNotifier {
           .build(),
     );
 
-    socket!.on("authorized", (data) {
+    socket.on("authorized", (data) {
       authorized = true;
       Timer.run(() => notifyListeners());
     });
 
-    socket!.on("disconnect", (data) {
+    socket.on("disconnect", (data) {
       disconnect();
     });
 
     if (hasVibrator) {
-      socket!.on("vibrate", (vibrate) {
+      socket.on("v", (vibrate) {
         if (vibrate) {
           Vibration.vibrate(duration: 10000);
         } else {
@@ -71,29 +91,38 @@ class ClientProvider extends ChangeNotifier {
       });
     }
 
-    socket!.connect();
+    socket.on("PO", (_) {
+      ping = DateTime.now().millisecondsSinceEpoch - start;
+      Timer.run(() => notifyListeners());
+    });
+
+    socket.connect();
+
+    Timer.periodic(const Duration(seconds: 1), (_) {
+      start = DateTime.now().millisecondsSinceEpoch;
+      socket.emit("PI", "");
+    });
   }
 
   sendKey(KeyAction action, KeyPad key) {
-    socket!.emit("key", {"action": action.name, "key": key.value});
+    socket.emit("K", [action.value, key.value]);
   }
 
   sendJoystick(JoystickPosition joystick, double x, double y) {
-    socket!.emit("joystick", {"action": joystick.name, "x": x, "y": y});
+    socket.emit("J", [joystick.value, x, y]);
   }
 
   sendTrigger(Trigger trigger, double value) {
-    socket!.emit("trigger", {"action": trigger.name, "value": value});
+    socket.emit("T", [trigger.value, value]);
   }
 
   sendReset() {
-    socket!.emit("reset");
+    socket.emit("reset");
   }
 
   disconnect() {
-    socket?.dispose();
+    socket.dispose();
     Vibration.cancel();
-    socket = null;
     connection = false;
     authorized = false;
     Timer.run(() => notifyListeners());
