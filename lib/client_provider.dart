@@ -98,7 +98,7 @@ class ClientProvider extends ChangeNotifier {
 
     socket.connect();
 
-    Timer.periodic(const Duration(seconds: 1), (_) {
+    Timer.periodic(const Duration(seconds: 5), (_) {
       start = DateTime.now().millisecondsSinceEpoch;
       socket.emit("PI", "");
     });
