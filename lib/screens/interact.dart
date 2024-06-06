@@ -294,7 +294,7 @@ class KeyPadButton extends StatelessWidget {
           input.runtimeType == KeyPad
               ? clientProvider.sendKey(KeyAction.press, input)
               : clientProvider.sendTrigger(input, 1.0);
-          Vibration.vibrate(duration: 100);
+          Vibration.vibrate(duration: 5);
         },
         onPointerUp: (_) => input.runtimeType == KeyPad
             ? clientProvider.sendKey(KeyAction.release, input)

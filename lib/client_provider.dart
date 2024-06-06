@@ -92,6 +92,7 @@ class ClientProvider extends ChangeNotifier {
 
   disconnect() {
     socket?.dispose();
+    Vibration.cancel();
     socket = null;
     connection = false;
     authorized = false;
