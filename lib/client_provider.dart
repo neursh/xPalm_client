@@ -1,8 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
-import "package:socket_io_client/socket_io_client.dart" as sio;
 import 'package:vibration/vibration.dart';
 
 enum KeyAction {
@@ -31,7 +31,7 @@ enum KeyPad {
   XUSB_GAMEPAD_Y(0x8000);
 
   const KeyPad(this.value);
-  final num value;
+  final int value;
 }
 
 enum JoystickPosition {
@@ -39,7 +39,7 @@ enum JoystickPosition {
   right_joystick(1);
 
   const JoystickPosition(this.value);
-  final num value;
+  final int value;
 }
 
 enum Trigger {
@@ -47,81 +47,103 @@ enum Trigger {
   right_trigger(1);
 
   const Trigger(this.value);
-  final num value;
+  final int value;
 }
 
 class ClientProvider extends ChangeNotifier {
   bool authorized = false;
   bool connection = false;
-  late sio.Socket socket;
+  late RawDatagramSocket socket;
   int ping = 0;
   int start = DateTime.now().millisecondsSinceEpoch;
+  late InternetAddress destinationIp;
+  late int destinationPort;
 
-  connect(String ip, int port, String pin) async {
+  connect(String ip, int port, int pin) async {
+    destinationIp = InternetAddress(ip);
+    destinationPort = port;
+
     connection = true;
     bool hasVibrator = (await Vibration.hasVibrator()) ?? false;
 
-    socket = sio.io(
-      "http://$ip:$port",
-      sio.OptionBuilder()
-          .enableForceNew()
-          .setTransports(["websocket"])
-          .setExtraHeaders({"PIN": pin})
-          .disableAutoConnect()
-          .disableReconnection()
-          .build(),
-    );
+    socket =
+        await RawDatagramSocket.bind(InternetAddress.anyIPv4, destinationPort);
+    socket.readEventsEnabled = true;
 
-    socket.on("authorized", (data) {
-      authorized = true;
-      Timer.run(() => notifyListeners());
-    });
-
-    socket.on("disconnect", (data) {
-      disconnect();
-    });
-
-    if (hasVibrator) {
-      socket.on("v", (vibrate) {
-        if (vibrate) {
-          Vibration.vibrate(duration: 10000);
-        } else {
-          Vibration.cancel();
-        }
-      });
+    processAuthorizeEvents(int key) {
+      if (key > 1) return;
+      if (key == 1) {
+        authorized = true;
+        Timer.run(() => notifyListeners());
+        return;
+      }
+      if (key == 0) {
+        disconnect();
+      }
     }
 
-    socket.on("PO", (_) {
-      ping = DateTime.now().millisecondsSinceEpoch - start;
-      Timer.run(() => notifyListeners());
-    });
+    processVibratorEvents(int key) {
+      if (key > 3 && !hasVibrator) return;
+      if (key == 2) {
+        Vibration.vibrate(duration: 10000);
+      }
+      if (key == 3) {
+        Vibration.cancel();
+      }
+    }
 
-    socket.connect();
+    processPingPongEvent(int key) {
+      if (key == 4) {
+        ping = DateTime.now().millisecondsSinceEpoch - start;
+        Timer.run(() => notifyListeners());
+      }
+    }
 
-    Timer.periodic(const Duration(seconds: 5), (_) {
-      start = DateTime.now().millisecondsSinceEpoch;
-      socket.emit("PI", "");
-    });
+    socket.listen(
+      (RawSocketEvent event) {
+        if (event == RawSocketEvent.read) {
+          final datagram = socket.receive();
+          if (datagram != null && datagram.address.address == ip) {
+            final eventKey = datagram.data[0];
+            processAuthorizeEvents(eventKey);
+            processVibratorEvents(eventKey);
+            processPingPongEvent(eventKey);
+          }
+        }
+      },
+    );
+
+    // Send PIN to server.
+    ByteData pinByteSend = ByteData(5);
+    pinByteSend.setInt8(0, 5);
+    pinByteSend.setInt32(1, pin);
+    socket.send(
+        pinByteSend.buffer.asUint8List(0, 5), destinationIp, destinationPort);
+
+    // Timer.periodic(const Duration(seconds: 5), (_) {
+    //   start = DateTime.now().millisecondsSinceEpoch;
+    //   socket.send([4], destinationIp, port);
+    // });
   }
 
   sendKey(KeyAction action, KeyPad key) {
-    socket.emit("K", [action.value, key.value]);
+    socket.send([0, key.value], destinationIp, destinationPort);
   }
 
   sendJoystick(JoystickPosition joystick, double x, double y) {
-    socket.emit("J", [joystick.value, x, y]);
+    socket.send([1, joystick.value], destinationIp, destinationPort);
   }
 
   sendTrigger(Trigger trigger, double value) {
-    socket.emit("T", [trigger.value, value]);
+    socket.send([2, trigger.value], destinationIp, destinationPort);
   }
 
   sendReset() {
-    socket.emit("reset");
+    socket.send([3], destinationIp, destinationPort);
   }
 
   disconnect() {
-    socket.dispose();
+    socket.close();
     Vibration.cancel();
     connection = false;
     authorized = false;

@@ -17,7 +17,7 @@ class EnterPin extends StatefulWidget {
 }
 
 class _EnterPinState extends State<EnterPin> {
-  final String pin = (Random().nextInt(8999) + 1000).toString();
+  final int pin = Random().nextInt(8999) + 1000;
 
   @override
   void initState() {
@@ -65,7 +65,7 @@ class _EnterPinState extends State<EnterPin> {
               const SizedBox(height: 10),
               const Text("Enter this PIN on your computer:"),
               Text(
-                pin,
+                pin.toString(),
                 style:
                     const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
