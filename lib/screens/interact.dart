@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:vibration/vibration.dart';
@@ -16,7 +18,6 @@ class Interact extends StatefulWidget {
 }
 
 class _InteractState extends State<Interact> {
-
   @override
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
@@ -230,25 +231,55 @@ class JoystickAttach extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Timer? sendClick;
+
     return Consumer<ClientProvider>(
-      builder: (context, clientProvider, _) => Joystick(
-        stick: Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-              color: Colors.blue, borderRadius: BorderRadius.circular(90)),
-        ),
-        base: Container(
-          width: 140,
-          height: 140,
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(500),
+      builder: (context, clientProvider, _) => GestureDetector(
+        onPanEnd: (_) {
+          sendClick?.cancel();
+          clientProvider.sendKey(
+              KeyAction.release,
+              position == JoystickPosition.left_joystick
+                  ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
+                  : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
+        },
+        onPanCancel: () {
+          sendClick?.cancel();
+          clientProvider.sendKey(
+              KeyAction.release,
+              position == JoystickPosition.left_joystick
+                  ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
+                  : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
+        },
+        onPanDown: (_) => {
+          sendClick = Timer(const Duration(seconds: 2), () {
+            clientProvider.sendKey(
+                KeyAction.press,
+                position == JoystickPosition.left_joystick
+                    ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
+                    : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
+            Vibration.vibrate(duration: 5);
+          })
+        },
+        child: Joystick(
+          stick: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+                color: Colors.blue, borderRadius: BorderRadius.circular(90)),
           ),
+          base: Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(500),
+            ),
+          ),
+          period: const Duration(milliseconds: 50),
+          listener: (details) => clientProvider.sendJoystick(position,
+              (details.x * 32767).floor(), (-details.y * 32767).floor()),
         ),
-        period: const Duration(milliseconds: 50),
-        listener: (details) =>
-            clientProvider.sendJoystick(position, details.x, -details.y),
       ),
     );
   }
@@ -280,12 +311,12 @@ class KeyPadButton extends StatelessWidget {
         onPointerDown: (_) {
           input.runtimeType == KeyPad
               ? clientProvider.sendKey(KeyAction.press, input)
-              : clientProvider.sendTrigger(input, 1.0);
+              : clientProvider.sendTrigger(input, 255);
           Vibration.vibrate(duration: 5);
         },
         onPointerUp: (_) => input.runtimeType == KeyPad
             ? clientProvider.sendKey(KeyAction.release, input)
-            : clientProvider.sendTrigger(input, 0.0),
+            : clientProvider.sendTrigger(input, 0),
         child: Container(
           height: height,
           width: width,

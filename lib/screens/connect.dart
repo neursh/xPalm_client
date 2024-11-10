@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -123,21 +122,21 @@ class ServersMulticast {
     socket.joinMulticast(multicastGroup);
     socket.readEventsEnabled = true;
 
-    const utf8 = Utf8Codec();
     socket.listen(
       (RawSocketEvent event) {
         if (event == RawSocketEvent.read) {
           final datagram = socket.receive();
           if (datagram != null && socket.address != datagram.address) {
-            final message = String.fromCharCodes(datagram.data);
-            if (message.startsWith("xpalm::server::")) {
-              final serverInfo = ServerInfo(
-                  name: message.split("::")[2], ip: datagram.address);
+            final message = datagram.data;
+            if (message.first == 1) {
+              final serverName = String.fromCharCodes(message.sublist(1));
+              final serverInfo =
+                  ServerInfo(name: serverName, ip: datagram.address);
               if (serversList.value.firstWhereOrNull((element) =>
                       element.ip.address == serverInfo.ip.address) ==
                   null) {
-                serversList.add(ServerInfo(
-                    name: message.split("::")[2], ip: datagram.address));
+                serversList
+                    .add(ServerInfo(name: serverName, ip: datagram.address));
               }
             }
           }
@@ -145,11 +144,11 @@ class ServersMulticast {
       },
     );
 
-    socket.send(utf8.encode("xpalm::client"), multicastGroup, port);
+    socket.send([0], multicastGroup, port);
     sendTask = Timer.periodic(
       const Duration(seconds: 1),
       (timer) {
-        socket.send(utf8.encode("xpalm::client"), multicastGroup, port);
+        socket.send([0], multicastGroup, port);
       },
     );
   }

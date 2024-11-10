@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../client_provider.dart';
@@ -17,12 +15,10 @@ class EnterPin extends StatefulWidget {
 }
 
 class _EnterPinState extends State<EnterPin> {
-  final int pin = Random().nextInt(8999) + 1000;
-
   @override
   void initState() {
     Provider.of<ClientProvider>(context, listen: false)
-        .connect(widget.ip, widget.port, pin);
+        .connect(widget.ip, widget.port);
     super.initState();
   }
 
@@ -63,12 +59,7 @@ class _EnterPinState extends State<EnterPin> {
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              const Text("Enter this PIN on your computer:"),
-              Text(
-                pin.toString(),
-                style:
-                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              ),
+              const Text("Waiting for host to accept..."),
               OutlinedButton(
                 onPressed: () {
                   if (clientProvider.connection) {

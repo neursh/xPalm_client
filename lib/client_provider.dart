@@ -3,14 +3,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:vibration/vibration.dart';
 
 enum KeyAction {
   press(1),
   release(0);
 
   const KeyAction(this.value);
-  final num value;
+  final int value;
 }
 
 enum KeyPad {
@@ -59,12 +58,11 @@ class ClientProvider extends ChangeNotifier {
   late InternetAddress destinationIp;
   late int destinationPort;
 
-  connect(String ip, int port, int pin) async {
+  connect(String ip, int port) async {
     destinationIp = InternetAddress(ip);
     destinationPort = port;
 
     connection = true;
-    bool hasVibrator = (await Vibration.hasVibrator()) ?? false;
 
     socket =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, destinationPort);
@@ -74,21 +72,12 @@ class ClientProvider extends ChangeNotifier {
       if (key > 1) return;
       if (key == 1) {
         authorized = true;
+
         Timer.run(() => notifyListeners());
         return;
       }
       if (key == 0) {
         disconnect();
-      }
-    }
-
-    processVibratorEvents(int key) {
-      if (key > 3 && !hasVibrator) return;
-      if (key == 2) {
-        Vibration.vibrate(duration: 10000);
-      }
-      if (key == 3) {
-        Vibration.cancel();
       }
     }
 
@@ -106,47 +95,46 @@ class ClientProvider extends ChangeNotifier {
           if (datagram != null && datagram.address.address == ip) {
             final eventKey = datagram.data[0];
             processAuthorizeEvents(eventKey);
-            processVibratorEvents(eventKey);
             processPingPongEvent(eventKey);
           }
         }
       },
     );
 
-    // Send PIN to server.
-    ByteData pinByteSend = ByteData(5);
-    pinByteSend.setInt8(0, 5);
-    pinByteSend.setInt32(1, pin);
-    socket.send(
-        pinByteSend.buffer.asUint8List(0, 5), destinationIp, destinationPort);
-
-    // Timer.periodic(const Duration(seconds: 5), (_) {
-    //   start = DateTime.now().millisecondsSinceEpoch;
-    //   socket.send([4], destinationIp, port);
-    // });
+    // Request to server.
+    socket.send([0], destinationIp, destinationPort);
   }
 
   sendKey(KeyAction action, KeyPad key) {
-    socket.send([0, key.value], destinationIp, destinationPort);
+    socket.send([2, action.value] + _intToUint8List(key.value), destinationIp,
+        destinationPort);
   }
 
-  sendJoystick(JoystickPosition joystick, double x, double y) {
-    socket.send([1, joystick.value], destinationIp, destinationPort);
+  sendJoystick(JoystickPosition joystick, int x, int y) {
+    socket.send([3, joystick.value] + _intToUint8List(x) + _intToUint8List(y),
+        destinationIp, destinationPort);
   }
 
-  sendTrigger(Trigger trigger, double value) {
-    socket.send([2, trigger.value], destinationIp, destinationPort);
+  sendTrigger(Trigger trigger, int value) {
+    socket.send([4, trigger.value, value], destinationIp, destinationPort);
   }
 
   sendReset() {
-    socket.send([3], destinationIp, destinationPort);
+    socket.send([5], destinationIp, destinationPort);
   }
 
   disconnect() {
+    socket.send([1], destinationIp, destinationPort);
     socket.close();
-    Vibration.cancel();
     connection = false;
     authorized = false;
     Timer.run(() => notifyListeners());
+  }
+
+  Uint8List _intToUint8List(int value) {
+    ByteData byteData = ByteData(2);
+    byteData.setInt16(0, value, Endian.little);
+
+    return byteData.buffer.asUint8List();
   }
 }
