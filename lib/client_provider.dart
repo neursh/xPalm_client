@@ -52,7 +52,8 @@ enum Trigger {
 class ClientProvider extends ChangeNotifier {
   bool authorized = false;
   bool connection = false;
-  late RawDatagramSocket socket;
+  late RawDatagramSocket udpJoystick;
+  late RawSocket tcpButtons;
   int ping = 0;
   int start = DateTime.now().millisecondsSinceEpoch;
   late InternetAddress destinationIp;
@@ -64,9 +65,11 @@ class ClientProvider extends ChangeNotifier {
 
     connection = true;
 
-    socket =
+    tcpButtons = await RawSocket.connect(destinationIp, port);
+
+    udpJoystick =
         await RawDatagramSocket.bind(InternetAddress.anyIPv4, destinationPort);
-    socket.readEventsEnabled = true;
+    udpJoystick.readEventsEnabled = true;
 
     processAuthorizeEvents(int key) {
       if (key > 1) return;
@@ -88,44 +91,45 @@ class ClientProvider extends ChangeNotifier {
       }
     }
 
-    socket.listen(
-      (RawSocketEvent event) {
-        if (event == RawSocketEvent.read) {
-          final datagram = socket.receive();
-          if (datagram != null && datagram.address.address == ip) {
-            final eventKey = datagram.data[0];
-            processAuthorizeEvents(eventKey);
-            processPingPongEvent(eventKey);
-          }
+    tcpButtons.listen((RawSocketEvent event) {
+      if (event == RawSocketEvent.read) {
+        final datagram = tcpButtons.read();
+
+        if (datagram != null) {
+          final eventKey = datagram[0];
+          processAuthorizeEvents(eventKey);
+          processPingPongEvent(eventKey);
         }
-      },
-    );
+      }
+    });
 
     // Request to server.
-    socket.send([0], destinationIp, destinationPort);
+    tcpButtons.write([0]);
   }
 
   sendKey(KeyAction action, KeyPad key) {
-    socket.send([2, action.value] + _intToUint8List(key.value), destinationIp,
-        destinationPort);
+    tcpButtons.write([2, action.value] + _intToUint8List(key.value));
   }
 
   sendJoystick(JoystickPosition joystick, int x, int y) {
-    socket.send([3, joystick.value] + _intToUint8List(x) + _intToUint8List(y),
-        destinationIp, destinationPort);
+    udpJoystick.send(
+        [3, joystick.value] + _intToUint8List(x) + _intToUint8List(y),
+        destinationIp,
+        destinationPort);
   }
 
   sendTrigger(Trigger trigger, int value) {
-    socket.send([4, trigger.value, value], destinationIp, destinationPort);
+    tcpButtons.write([4, trigger.value] + _intToUint8List(value));
   }
 
   sendReset() {
-    socket.send([5], destinationIp, destinationPort);
+    tcpButtons.write([5]);
   }
 
   disconnect() {
-    socket.send([1], destinationIp, destinationPort);
-    socket.close();
+    tcpButtons.write([1]);
+    tcpButtons.close();
+    udpJoystick.close();
     connection = false;
     authorized = false;
     Timer.run(() => notifyListeners());
