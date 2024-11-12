@@ -276,7 +276,7 @@ class JoystickAttach extends StatelessWidget {
               borderRadius: BorderRadius.circular(500),
             ),
           ),
-          period: const Duration(milliseconds: 25),
+          period: const Duration(milliseconds: 10),
           listener: (details) => clientProvider.sendJoystick(position,
               (details.x * 32767).floor(), (-details.y * 32767).floor()),
         ),
