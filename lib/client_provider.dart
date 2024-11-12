@@ -123,7 +123,7 @@ class ClientProvider extends ChangeNotifier {
   }
 
   sendTrigger(Trigger trigger, int value) {
-    tcpButtons.write([4, trigger.value] + _intToUint8List(value));
+    tcpButtons.write([4, trigger.value, 0, value]);
   }
 
   sendReset() {
