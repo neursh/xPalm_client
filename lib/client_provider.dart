@@ -77,7 +77,7 @@ class ClientProvider extends ChangeNotifier {
         authorized = true;
         Timer.run(() => notifyListeners());
 
-        Timer.periodic(const Duration(seconds: 5), (_) {
+        Timer.periodic(const Duration(seconds: 2), (_) {
           start = DateTime.now().millisecondsSinceEpoch;
           tcpButtons.write([6, 0, 0, 0]);
         });
