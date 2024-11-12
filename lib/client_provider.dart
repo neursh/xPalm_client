@@ -75,8 +75,12 @@ class ClientProvider extends ChangeNotifier {
       if (key > 1) return;
       if (key == 1) {
         authorized = true;
-
         Timer.run(() => notifyListeners());
+
+        Timer.periodic(const Duration(seconds: 5), (_) {
+          start = DateTime.now().millisecondsSinceEpoch;
+          tcpButtons.write([6, 0, 0, 0]);
+        });
         return;
       }
       if (key == 0) {
@@ -85,7 +89,7 @@ class ClientProvider extends ChangeNotifier {
     }
 
     processPingPongEvent(int key) {
-      if (key == 4) {
+      if (key == 6) {
         ping = DateTime.now().millisecondsSinceEpoch - start;
         Timer.run(() => notifyListeners());
       }
@@ -104,7 +108,7 @@ class ClientProvider extends ChangeNotifier {
     });
 
     // Request to server.
-    tcpButtons.write([0]);
+    tcpButtons.write([0, 0, 0, 0]);
   }
 
   sendKey(KeyAction action, KeyPad key) {
