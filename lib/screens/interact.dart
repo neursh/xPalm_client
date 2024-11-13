@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:vibration/vibration.dart';
 import '../client_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,263 +23,304 @@ class _InteractState extends State<Interact> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        body: SafeArea(
-          child: Stack(children: [
-            const Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: EdgeInsets.only(top: 80),
-                child: Image(
-                  image: AssetImage("assets/logo.png"),
-                  width: 60,
-                  height: 60,
+        body: Center(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: JoyStickCustom(
+                  position: JoystickPosition.left_joystick,
                 ),
               ),
-            ),
-            const Align(
-              alignment: Alignment.topLeft,
-              child: Column(children: [
-                KeyPadButton(
-                  height: 80,
-                  width: 70,
-                  input: Trigger.left_trigger,
-                  text: "LT",
+              const Align(
+                alignment: Alignment.centerRight,
+                child: JoyStickCustom(
+                  position: JoystickPosition.right_joystick,
+                  showArea: false,
+                  divisionFactor: 5,
                 ),
-                SizedBox(height: 16),
-                KeyPadButton(
-                  height: 80,
-                  width: 70,
-                  input: KeyPad.XUSB_GAMEPAD_LEFT_SHOULDER,
-                  text: "LB",
+              ),
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Column(children: [
+                  KeyPadButton(
+                    height: 80,
+                    width: 70,
+                    input: Trigger.left_trigger,
+                    text: "LT",
+                  ),
+                  SizedBox(height: 16),
+                  KeyPadButton(
+                    height: 80,
+                    width: 70,
+                    input: KeyPad.XUSB_GAMEPAD_LEFT_SHOULDER,
+                    text: "LB",
+                  ),
+                ]),
+              ),
+              const Align(
+                alignment: Alignment.topRight,
+                child: Column(children: [
+                  KeyPadButton(
+                    height: 80,
+                    width: 70,
+                    input: Trigger.right_trigger,
+                    text: "RT",
+                  ),
+                  SizedBox(height: 16),
+                  KeyPadButton(
+                    height: 80,
+                    width: 70,
+                    input: KeyPad.XUSB_GAMEPAD_RIGHT_SHOULDER,
+                    text: "RB",
+                  )
+                ]),
+              ),
+              const Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 32),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        KeyPadButton(
+                          height: 32,
+                          width: 32,
+                          input: KeyPad.XUSB_GAMEPAD_BACK,
+                          icon: Icon(
+                            Icons.web_asset,
+                          ),
+                        ),
+                        SizedBox(width: 32),
+                        Image(
+                          image: AssetImage("assets/logo.png"),
+                          width: 60,
+                          height: 60,
+                        ),
+                        SizedBox(width: 32),
+                        KeyPadButton(
+                          height: 32,
+                          width: 32,
+                          input: KeyPad.XUSB_GAMEPAD_START,
+                          icon: Icon(
+                            Icons.menu,
+                          ),
+                        ),
+                      ]),
                 ),
-              ]),
-            ),
-            const Align(
-              alignment: Alignment.topRight,
-              child: Column(children: [
-                KeyPadButton(
-                  height: 80,
-                  width: 70,
-                  input: Trigger.right_trigger,
-                  text: "RT",
-                ),
-                SizedBox(height: 16),
-                KeyPadButton(
-                  height: 80,
-                  width: 70,
-                  input: KeyPad.XUSB_GAMEPAD_RIGHT_SHOULDER,
-                  text: "RB",
-                )
-              ]),
-            ),
-            const Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: EdgeInsets.only(top: 32),
-                child: Row(
+              ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      left: 70 + screen.width / 6, bottom: screen.height / 15),
+                  child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       KeyPadButton(
-                        height: 32,
-                        width: 32,
-                        input: KeyPad.XUSB_GAMEPAD_BACK,
-                        icon: Icon(
-                          Icons.chevron_left,
-                          color: Colors.black,
-                        ),
+                        height: 60,
+                        width: 60,
+                        input: KeyPad.XUSB_GAMEPAD_DPAD_UP,
                       ),
-                      SizedBox(width: 48),
+                      SizedBox(height: 7),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            KeyPadButton(
+                              height: 60,
+                              width: 60,
+                              input: KeyPad.XUSB_GAMEPAD_DPAD_LEFT,
+                            ),
+                            SizedBox(width: 74),
+                            KeyPadButton(
+                              height: 60,
+                              width: 60,
+                              input: KeyPad.XUSB_GAMEPAD_DPAD_RIGHT,
+                            ),
+                          ]),
+                      SizedBox(height: 7),
                       KeyPadButton(
-                        height: 32,
-                        width: 32,
-                        input: KeyPad.XUSB_GAMEPAD_START,
-                        icon: Icon(
-                          Icons.chevron_right,
-                          color: Colors.black,
-                        ),
+                        height: 60,
+                        width: 60,
+                        input: KeyPad.XUSB_GAMEPAD_DPAD_DOWN,
                       ),
-                    ]),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 70 + screen.width / 20, top: screen.height / 5),
-                child: const JoystickAttach(
-                  position: JoystickPosition.left_joystick,
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    right: 70 + screen.width / 6, bottom: screen.height / 8),
-                child: const JoystickAttach(
-                  position: JoystickPosition.right_joystick,
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: EdgeInsets.all(screen.height / 10),
+                  child: KeyPadButton(
+                    height: screen.height / 2.5,
+                    width: screen.height / 2.5,
+                    borderRadius: screen.height / 2.5,
+                    input: KeyPad.XUSB_GAMEPAD_A,
+                    color: Colors.green,
+                    text: "A",
+                  ),
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 70 + screen.width / 6, bottom: screen.height / 15),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    KeyPadButton(
-                      height: 60,
-                      width: 60,
-                      input: KeyPad.XUSB_GAMEPAD_DPAD_UP,
-                    ),
-                    SizedBox(height: 7),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          KeyPadButton(
-                            height: 60,
-                            width: 60,
-                            input: KeyPad.XUSB_GAMEPAD_DPAD_LEFT,
-                          ),
-                          SizedBox(width: 74),
-                          KeyPadButton(
-                            height: 60,
-                            width: 60,
-                            input: KeyPad.XUSB_GAMEPAD_DPAD_RIGHT,
-                          ),
-                        ]),
-                    SizedBox(height: 7),
-                    KeyPadButton(
-                      height: 60,
-                      width: 60,
-                      input: KeyPad.XUSB_GAMEPAD_DPAD_DOWN,
-                    ),
-                  ],
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      right: 70 + screen.width / 20, top: screen.height / 15),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      KeyPadButton(
+                        height: 60,
+                        width: 60,
+                        input: KeyPad.XUSB_GAMEPAD_Y,
+                        color: Colors.yellow,
+                        text: "Y",
+                      ),
+                      SizedBox(height: 7),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            KeyPadButton(
+                              height: 60,
+                              width: 60,
+                              input: KeyPad.XUSB_GAMEPAD_X,
+                              color: Colors.blue,
+                              text: "X",
+                            ),
+                            SizedBox(width: 74),
+                            KeyPadButton(
+                              height: 60,
+                              width: 60,
+                              input: KeyPad.XUSB_GAMEPAD_B,
+                              color: Colors.red,
+                              text: "B",
+                            ),
+                          ]),
+                      SizedBox(height: 7),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    right: 70 + screen.width / 20, top: screen.height / 15),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    KeyPadButton(
-                      height: 60,
-                      width: 60,
-                      input: KeyPad.XUSB_GAMEPAD_Y,
-                      color: Colors.yellow,
-                      text: "Y",
-                    ),
-                    SizedBox(height: 7),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          KeyPadButton(
-                            height: 60,
-                            width: 60,
-                            input: KeyPad.XUSB_GAMEPAD_X,
-                            color: Colors.blue,
-                            text: "X",
-                          ),
-                          SizedBox(width: 74),
-                          KeyPadButton(
-                            height: 60,
-                            width: 60,
-                            input: KeyPad.XUSB_GAMEPAD_B,
-                            color: Colors.red,
-                            text: "B",
-                          ),
-                        ]),
-                    SizedBox(height: 7),
-                    KeyPadButton(
-                      height: 60,
-                      width: 60,
-                      input: KeyPad.XUSB_GAMEPAD_A,
-                      color: Colors.green,
-                      text: "A",
-                    ),
-                  ],
-                ),
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: PingDisplay(),
               ),
-            ),
-            const Align(
-              alignment: Alignment.bottomCenter,
-              child: PingDisplay(),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class JoystickAttach extends StatelessWidget {
+class JoyStickCustom extends StatefulWidget {
   final JoystickPosition position;
-  const JoystickAttach({super.key, required this.position});
+  final bool showArea;
+  final double divisionFactor;
+
+  const JoyStickCustom(
+      {super.key,
+      required this.position,
+      this.showArea = true,
+      this.divisionFactor = 2.5});
+
+  @override
+  State<StatefulWidget> createState() => _JoyStickCustomState();
+}
+
+class _JoyStickCustomState extends State<JoyStickCustom> {
+  Offset? beginPan;
+  bool _isOnCooldown = false;
+
+  double clamp(double value, double clampMin, double clampMax) {
+    if (value <= clampMin) {
+      return clampMin;
+    }
+    if (value >= clampMax) {
+      return clampMax;
+    }
+
+    return value;
+  }
 
   @override
   Widget build(BuildContext context) {
-    Timer? sendClick;
+    Size screen = MediaQuery.of(context).size;
 
     return Consumer<ClientProvider>(
-      builder: (context, clientProvider, _) => GestureDetector(
-        onPanEnd: (_) {
-          sendClick?.cancel();
-          clientProvider.sendKey(
-              KeyAction.release,
-              position == JoystickPosition.left_joystick
-                  ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
-                  : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
-        },
-        onPanCancel: () {
-          sendClick?.cancel();
-          clientProvider.sendKey(
-              KeyAction.release,
-              position == JoystickPosition.left_joystick
-                  ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
-                  : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
-        },
-        onPanDown: (_) => {
-          sendClick = Timer(const Duration(seconds: 2), () {
-            clientProvider.sendKey(
-                KeyAction.press,
-                position == JoystickPosition.left_joystick
-                    ? KeyPad.XUSB_GAMEPAD_LEFT_THUMB
-                    : KeyPad.XUSB_GAMEPAD_RIGHT_THUMB);
-            Vibration.vibrate(duration: 5);
-          })
-        },
-        child: Joystick(
-          stick: Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-                color: Colors.blue, borderRadius: BorderRadius.circular(90)),
-          ),
-          base: Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(500),
-            ),
-          ),
-          period: const Duration(milliseconds: 10),
-          listener: (details) => clientProvider.sendJoystick(position,
-              (details.x * 32767).floor(), (-details.y * 32767).floor()),
-        ),
-      ),
-    );
+        builder: (context, clientProvider, _) => GestureDetector(
+              onPanDown: (details) => setState(() {
+                beginPan = details.localPosition;
+              }),
+              onPanUpdate: (details) {
+                if (!_isOnCooldown) {
+                  double currentX = (details.localPosition.dx - beginPan!.dx) /
+                      (screen.height / (widget.divisionFactor * 2));
+                  double currentY = (details.localPosition.dy - beginPan!.dy) /
+                      (screen.height / (widget.divisionFactor * 2));
+
+                  currentX = clamp(currentX, -1, 1);
+                  currentY = clamp(currentY, -1, 1);
+
+                  clientProvider.sendJoystick(widget.position,
+                      (currentX * 32767).floor(), (-currentY * 32767).floor());
+
+                  _isOnCooldown = true;
+                  Future.delayed(const Duration(milliseconds: 15),
+                      () => _isOnCooldown = false);
+                }
+              },
+              onPanEnd: (_) => setState(() {
+                beginPan = null;
+
+                clientProvider.sendJoystick(widget.position, 0, 0);
+              }),
+              child: Container(
+                color: Theme.of(context).colorScheme.surface,
+                height: screen.height,
+                width: screen.width / 2,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: beginPan != null
+                          ? screen.height -
+                              beginPan!.dy -
+                              screen.height / (widget.divisionFactor * 2)
+                          : screen.height / 10,
+                      left: widget.position == JoystickPosition.left_joystick
+                          ? beginPan != null
+                              ? beginPan!.dx -
+                                  screen.height / (widget.divisionFactor * 2)
+                              : screen.height / 10
+                          : null,
+                      right: widget.position == JoystickPosition.right_joystick
+                          ? beginPan != null
+                              ? -beginPan!.dx +
+                                  screen.height / widget.divisionFactor * 2
+                              : screen.height / 10
+                          : null,
+                      child: Container(
+                        width: screen.height / widget.divisionFactor,
+                        height: screen.height / widget.divisionFactor,
+                        decoration: BoxDecoration(
+                            border: widget.showArea
+                                ? Border.all(color: Colors.white)
+                                : null,
+                            borderRadius: BorderRadius.circular(
+                                screen.height / widget.divisionFactor)),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ));
   }
 }
 
@@ -292,6 +331,7 @@ class KeyPadButton extends StatelessWidget {
   final double height;
   final double width;
   final Color? color;
+  final double? borderRadius;
   const KeyPadButton({
     super.key,
     required this.input,
@@ -300,6 +340,7 @@ class KeyPadButton extends StatelessWidget {
     this.icon,
     this.text,
     this.color,
+    this.borderRadius,
   });
 
   @override
@@ -321,18 +362,16 @@ class KeyPadButton extends StatelessWidget {
           height: height,
           width: width,
           decoration: BoxDecoration(
-            color: color ?? scheme.primary,
-            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color ?? scheme.primary),
+            borderRadius: BorderRadius.circular(borderRadius ?? 12),
           ),
           child: Stack(children: [
             Align(
               alignment: Alignment.center,
               child: Text(
                 text ?? "",
-                style: const TextStyle(
-                    color: Colors.indigo,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
               ),
             ),
             Align(
