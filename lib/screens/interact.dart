@@ -43,34 +43,60 @@ class _InteractState extends State<Interact> {
               ),
               const Align(
                 alignment: Alignment.topLeft,
-                child: Column(children: [
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: KeyPadButton(
+                    input: KeyPad.XUSB_GAMEPAD_LEFT_THUMB,
+                    height: 30,
+                    width: 30,
+                    borderRadius: 15,
+                  ),
+                ),
+              ),
+              const Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: KeyPadButton(
+                    input: KeyPad.XUSB_GAMEPAD_RIGHT_THUMB,
+                    height: 30,
+                    width: 30,
+                    borderRadius: 15,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: screen.height / 2.5 + screen.height / 15 + 10,
+                left: screen.height / 15 + 5,
+                child: const Row(mainAxisSize: MainAxisSize.min, children: [
                   KeyPadButton(
-                    height: 80,
+                    height: 70,
                     width: 70,
                     input: Trigger.left_trigger,
                     text: "LT",
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(width: 16),
                   KeyPadButton(
-                    height: 80,
+                    height: 70,
                     width: 70,
                     input: KeyPad.XUSB_GAMEPAD_LEFT_SHOULDER,
                     text: "LB",
                   ),
                 ]),
               ),
-              const Align(
-                alignment: Alignment.topRight,
-                child: Column(children: [
+              Positioned(
+                bottom: screen.height / 2.5 + screen.height / 15 + 70,
+                right: screen.height / 15 + 10,
+                child: const Row(mainAxisSize: MainAxisSize.min, children: [
                   KeyPadButton(
-                    height: 80,
+                    height: 70,
                     width: 70,
                     input: Trigger.right_trigger,
                     text: "RT",
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(width: 16),
                   KeyPadButton(
-                    height: 80,
+                    height: 70,
                     width: 70,
                     input: KeyPad.XUSB_GAMEPAD_RIGHT_SHOULDER,
                     text: "RB",
@@ -111,101 +137,91 @@ class _InteractState extends State<Interact> {
                       ]),
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      left: 70 + screen.width / 6, bottom: screen.height / 15),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      KeyPadButton(
-                        height: 60,
-                        width: 60,
-                        input: KeyPad.XUSB_GAMEPAD_DPAD_UP,
-                      ),
-                      SizedBox(height: 7),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            KeyPadButton(
-                              height: 60,
-                              width: 60,
-                              input: KeyPad.XUSB_GAMEPAD_DPAD_LEFT,
-                            ),
-                            SizedBox(width: 74),
-                            KeyPadButton(
-                              height: 60,
-                              width: 60,
-                              input: KeyPad.XUSB_GAMEPAD_DPAD_RIGHT,
-                            ),
-                          ]),
-                      SizedBox(height: 7),
-                      KeyPadButton(
-                        height: 60,
-                        width: 60,
-                        input: KeyPad.XUSB_GAMEPAD_DPAD_DOWN,
-                      ),
-                    ],
-                  ),
+              Positioned(
+                left: screen.height / 2.5 + screen.height / 15 + 10,
+                bottom: screen.height / 15,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    KeyPadButton(
+                      height: 60,
+                      width: 60,
+                      input: KeyPad.XUSB_GAMEPAD_DPAD_UP,
+                      text: "↑",
+                    ),
+                    SizedBox(width: 12),
+                    KeyPadButton(
+                      height: 60,
+                      width: 60,
+                      input: KeyPad.XUSB_GAMEPAD_DPAD_LEFT,
+                      text: "←",
+                    ),
+                    SizedBox(width: 12),
+                    KeyPadButton(
+                      height: 60,
+                      width: 60,
+                      input: KeyPad.XUSB_GAMEPAD_DPAD_RIGHT,
+                      text: "→",
+                    ),
+                    SizedBox(width: 12),
+                    KeyPadButton(
+                      height: 60,
+                      width: 60,
+                      input: KeyPad.XUSB_GAMEPAD_DPAD_DOWN,
+                      text: "↓",
+                    ),
+                  ],
                 ),
               ),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: EdgeInsets.all(screen.height / 10),
+                  padding: EdgeInsets.all(screen.height / 15),
                   child: KeyPadButton(
-                    height: screen.height / 2.5,
-                    width: screen.height / 2.5,
-                    borderRadius: screen.height / 2.5,
+                    height: screen.height / 3,
+                    width: screen.height / 3,
+                    borderRadius: screen.height / 3,
                     input: KeyPad.XUSB_GAMEPAD_A,
                     color: Colors.green,
+                    strength: 15,
                     text: "A",
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      right: 70 + screen.width / 20, top: screen.height / 15),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      KeyPadButton(
-                        height: 60,
-                        width: 60,
-                        input: KeyPad.XUSB_GAMEPAD_Y,
-                        color: Colors.yellow,
-                        text: "Y",
-                      ),
-                      SizedBox(height: 7),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            KeyPadButton(
-                              height: 60,
-                              width: 60,
-                              input: KeyPad.XUSB_GAMEPAD_X,
-                              color: Colors.blue,
-                              text: "X",
-                            ),
-                            SizedBox(width: 74),
-                            KeyPadButton(
-                              height: 60,
-                              width: 60,
-                              input: KeyPad.XUSB_GAMEPAD_B,
-                              color: Colors.red,
-                              text: "B",
-                            ),
-                          ]),
-                      SizedBox(height: 7),
-                    ],
-                  ),
+              Positioned(
+                right: screen.height / 3 - screen.height / 15 - 60,
+                bottom: screen.height / 3 + screen.height / 15 + 10,
+                child: const KeyPadButton(
+                  height: 70,
+                  width: 70,
+                  borderRadius: 35,
+                  input: KeyPad.XUSB_GAMEPAD_B,
+                  color: Colors.red,
+                  text: "B",
+                ),
+              ),
+              Positioned(
+                right: screen.height / 3 - screen.height / 15 + 45,
+                bottom: screen.height / 3 + screen.height / 15 - 35,
+                child: const KeyPadButton(
+                  height: 70,
+                  width: 70,
+                  borderRadius: 35,
+                  input: KeyPad.XUSB_GAMEPAD_Y,
+                  color: Colors.yellow,
+                  text: "Y",
+                ),
+              ),
+              Positioned(
+                right: screen.height / 3 - screen.height / 15 + 60,
+                bottom: screen.height / 15,
+                child: const KeyPadButton(
+                  height: 70,
+                  width: 70,
+                  borderRadius: 35,
+                  input: KeyPad.XUSB_GAMEPAD_X,
+                  color: Colors.blue,
+                  text: "X",
                 ),
               ),
               const Align(
@@ -293,18 +309,18 @@ class _JoyStickCustomState extends State<JoyStickCustom> {
                           ? screen.height -
                               beginPan!.dy -
                               screen.height / (widget.divisionFactor * 2)
-                          : screen.height / 10,
+                          : screen.height / 15,
                       left: widget.position == JoystickPosition.left_joystick
                           ? beginPan != null
                               ? beginPan!.dx -
                                   screen.height / (widget.divisionFactor * 2)
-                              : screen.height / 10
+                              : screen.height / 15
                           : null,
                       right: widget.position == JoystickPosition.right_joystick
                           ? beginPan != null
                               ? -beginPan!.dx +
                                   screen.height / widget.divisionFactor * 2
-                              : screen.height / 10
+                              : screen.height / 15
                           : null,
                       child: Container(
                         width: screen.height / widget.divisionFactor,
@@ -332,6 +348,7 @@ class KeyPadButton extends StatelessWidget {
   final double width;
   final Color? color;
   final double? borderRadius;
+  final int strength;
   const KeyPadButton({
     super.key,
     required this.input,
@@ -341,6 +358,7 @@ class KeyPadButton extends StatelessWidget {
     this.text,
     this.color,
     this.borderRadius,
+    this.strength = 5,
   });
 
   @override
@@ -353,7 +371,7 @@ class KeyPadButton extends StatelessWidget {
           input.runtimeType == KeyPad
               ? clientProvider.sendKey(KeyAction.press, input)
               : clientProvider.sendTrigger(input, 1);
-          Vibration.vibrate(duration: 5);
+          Vibration.vibrate(duration: strength);
         },
         onPointerUp: (_) => input.runtimeType == KeyPad
             ? clientProvider.sendKey(KeyAction.release, input)
