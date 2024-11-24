@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import '../client_provider.dart';
@@ -255,17 +256,6 @@ class _JoyStickCustomState extends State<JoyStickCustom> {
   Offset? beginPan;
   bool _isOnCooldown = false;
 
-  double clamp(double value, double clampMin, double clampMax) {
-    if (value <= clampMin) {
-      return clampMin;
-    }
-    if (value >= clampMax) {
-      return clampMax;
-    }
-
-    return value;
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
@@ -282,8 +272,12 @@ class _JoyStickCustomState extends State<JoyStickCustom> {
                   double currentY = (details.localPosition.dy - beginPan!.dy) /
                       (screen.height / (widget.divisionFactor * 2));
 
-                  currentX = clamp(currentX, -1, 1);
-                  currentY = clamp(currentY, -1, 1);
+                  double radius = sqrt(pow(currentX, 2) + pow(currentY, 2));
+
+                  if (radius > 1) {
+                    currentX /= radius;
+                    currentY /= radius;
+                  }
 
                   clientProvider.sendJoystick(widget.position,
                       (currentX * 32767).floor(), (-currentY * 32767).floor());
